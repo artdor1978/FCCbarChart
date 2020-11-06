@@ -15,7 +15,7 @@ let app = () => {
 	const renderChart = (data) => {
 		const areaWidth = window.innerWidth;
 		const areaHeight = window.innerHeight;
-		const areaPadding = 80;
+		const areaPadding = areaHeight * 0.1;
 		const tooltip = d3
 			.select("body")
 			.append("div")
@@ -49,15 +49,34 @@ let app = () => {
 			.attr("id", "y-axis")
 			.call(yAxis);
 		chart
+			.append("text")
+			.attr("x", areaWidth / 2)
+			.attr("y", areaPadding + 20)
+			.attr("id", "title")
+			.attr("text-anchor", "middle")
+			.attr("dy", "0em")
+			.text("Gross Domestic Product,")
+			.style("fill", "#163d57");
+		chart
+			.append("text")
+			.attr("x", areaWidth / 2)
+			.attr("y", areaPadding + 20)
+			.attr("text-anchor", "middle")
+			.attr("id", "title")
+			.attr("dy", "1em") // you can vary how far apart it shows up
+			.text("Billions of Dollars")
+			.style("fill", "#163d57");
+		chart
 			.selectAll("rect")
 			.data(data)
 			.enter()
 			.append("rect")
 			.attr("class", "bar")
 			.attr("x", (d, i) => areaPadding + i * barWidth)
-			.attr("y", (d) => y(+d[1]))
+			.attr("y", areaHeight - areaPadding)
 			.attr("width", barWidth)
-			.attr("height", (d) => areaHeight - areaPadding - y(d[1]))
+			.attr("height", 0)
+
 			.attr("fill", "steelblue")
 			.attr("data-date", (d) => d[0])
 			.attr("data-gdp", (d) => d[1])
@@ -72,14 +91,12 @@ let app = () => {
 			})
 			.on("mouseout", function (d) {
 				tooltip.transition().duration(500).style("opacity", 0);
-			});
-		chart
-			.append("text")
-			.attr("x", areaWidth / 2)
-			.attr("y", areaPadding + 20)
-			.attr("id", "title")
-			.attr("text-anchor", "middle")
-			.text("Gross Domestic Product, Billions of Dollars");
+			})
+			.transition()
+			.delay((d, i) => i * 20)
+			.duration(800)
+			.attr("y", (d) => y(+d[1]))
+			.attr("height", (d) => areaHeight - areaPadding - y(d[1]));
 	};
 
 	return getData();
